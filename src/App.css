@@ -1,0 +1,5 @@
+.game-shell {
+  min-height: 100svh;
+  box-sizing: border-box;
+  padding: clamp(16px, 4vw, 32px);
+}

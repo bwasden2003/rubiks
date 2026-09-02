@@ -1,0 +1,37 @@
+.cube-face {
+    display: grid;
+    grid-template-columns: repeat(3, 32px);
+    grid-template-rows: repeat(3, 32px);
+    gap: 3px;
+    padding: 3px;
+    background: #111;
+}
+
+.facelet {
+    width: 32px;
+    height: 32px;
+}
+
+.facelet--U {
+    background: #f7f7f2;
+}
+
+.facelet--R {
+    background: #d83434;
+}
+
+.facelet--F {
+    background: #159957;
+}
+
+.facelet--D {
+    background: #f4d03f;
+}
+
+.facelet--L {
+    background: #ef7d22;
+}
+
+.facelet--B {
+    background: #2563eb;
+}
