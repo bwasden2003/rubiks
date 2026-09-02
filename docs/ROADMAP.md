@@ -33,7 +33,8 @@ leaderboards, multiplayer, or advanced move animation.
 - The cube's internal state arrays are publicly mutable despite the engine's
   immutability contract.
 - There are no UI, accessibility, or integration tests.
-- The `cubing` package is installed but unused by the current implementation.
+- The earlier unused `cubing` dependency has been removed in favor of the
+  local cube engine.
 - The `rubiks` directory currently resolves to the parent `Coding` Git
   repository instead of being tracked as its own project.
 
@@ -45,7 +46,7 @@ leaderboards, multiplayer, or advanced move animation.
   belong to the parent repository.
 - Fix all TypeScript build and ESLint errors.
 - Remove or connect unused prototype code and assets.
-- Remove `cubing` or document the concrete feature that requires it.
+- Keep npm as the single package manager and commit `package-lock.json`.
 - Add CI that runs tests, lint, and the production build on every change.
 
 ### Exit Criteria

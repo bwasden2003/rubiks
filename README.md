@@ -75,9 +75,8 @@ As of July 27, 2026:
   `no-this-alias` rule in `Cube.applyAlg`.
 - `npm run build` fails on the same unused imports/constants.
 
-The unused constants in `CubeChallenge.tsx` outline planned UI behavior but
-are not connected to the rendered app yet. The `cubing` package is installed
-but the current engine is implemented locally.
+The current engine is implemented locally and does not depend on an external
+cube engine.
 
 ## Roadmap
 
