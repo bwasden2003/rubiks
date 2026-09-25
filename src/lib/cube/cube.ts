@@ -72,7 +72,7 @@ export class Cube {
         }
     }
 
-    applyAlg(alg: Move[]): Cube {
+    applyAlg(alg: readonly Move[]): Cube {
         let cube: Cube = this.clone()
         for (const move of alg) {
             cube = cube.move(move)
