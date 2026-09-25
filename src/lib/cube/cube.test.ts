@@ -58,13 +58,29 @@ describe('Cube moves', () => {
   })
 })
 
+describe('Cube state access', () => {
+  it.each(['cornerPerm', 'cornerOrient', 'edgePerm', 'edgeOrient'] as const)(
+    'modifying %s results does not change the cube',
+    (getter) => {
+      const cube = new Cube().applyAlg(['R', 'F'])
+      const before = cube.clone()
+      const values = cube[getter]
+
+      values.fill(0)
+
+      expect(cube.equals(before)).toBe(true)
+      expect(cube[getter]).toEqual(before[getter])
+    },
+  )
+})
+
 describe('Cube orientation', () => {
   it('U and D moves do not change corner or edge orientation', () => {
     for (const move of ['U', "U'", 'U2', 'D', "D'", 'D2'] as Move[]) {
       const cube = new Cube().move(move)
 
-      expect(cube.corner_orient).toEqual(solvedCornerOrient)
-      expect(cube.edge_orient).toEqual(solvedEdgeOrient)
+      expect(cube.cornerOrient).toEqual(solvedCornerOrient)
+      expect(cube.edgeOrient).toEqual(solvedEdgeOrient)
     }
   })
 
@@ -72,8 +88,8 @@ describe('Cube orientation', () => {
     for (const move of ['R', "R'", 'L', "L'"] as Move[]) {
       const cube = new Cube().move(move)
 
-      expect(cube.corner_orient).not.toEqual(solvedCornerOrient)
-      expect(cube.edge_orient).toEqual(solvedEdgeOrient)
+      expect(cube.cornerOrient).not.toEqual(solvedCornerOrient)
+      expect(cube.edgeOrient).toEqual(solvedEdgeOrient)
     }
   })
 
@@ -81,8 +97,8 @@ describe('Cube orientation', () => {
     for (const move of ['F', "F'", 'B', "B'"] as Move[]) {
       const cube = new Cube().move(move)
 
-      expect(cube.corner_orient).not.toEqual(solvedCornerOrient)
-      expect(cube.edge_orient).not.toEqual(solvedEdgeOrient)
+      expect(cube.cornerOrient).not.toEqual(solvedCornerOrient)
+      expect(cube.edgeOrient).not.toEqual(solvedEdgeOrient)
     }
   })
 
@@ -90,8 +106,8 @@ describe('Cube orientation', () => {
     for (const move of ['U2', 'D2', 'L2', 'R2', 'F2', 'B2'] as Move[]) {
       const cube = new Cube().move(move)
 
-      expect(cube.corner_orient).toEqual(solvedCornerOrient)
-      expect(cube.edge_orient).toEqual(solvedEdgeOrient)
+      expect(cube.cornerOrient).toEqual(solvedCornerOrient)
+      expect(cube.edgeOrient).toEqual(solvedEdgeOrient)
     }
   })
 
@@ -100,8 +116,8 @@ describe('Cube orientation', () => {
       const inverse = `${face}'` as Move
       const cube = new Cube().applyAlg([face, inverse])
 
-      expect(cube.corner_orient).toEqual(solvedCornerOrient)
-      expect(cube.edge_orient).toEqual(solvedEdgeOrient)
+      expect(cube.cornerOrient).toEqual(solvedCornerOrient)
+      expect(cube.edgeOrient).toEqual(solvedEdgeOrient)
     }
   })
 })
@@ -115,25 +131,23 @@ describe('Cube facelets', () => {
     }
   })
 
-  it('rotates corner colors onto facelet slots for corner orientation', () => {
-    const cube = new Cube()
-    cube.corner_orient[0] = 1
+  it('projects a twisted corner after a legal F move', () => {
+    const cube = new Cube().move('F')
 
     const facelets = cubeToFacelets(cube)
 
     expect(facelets.R[0]).toBe('U')
-    expect(facelets.F[2]).toBe('R')
-    expect(facelets.U[8]).toBe('F')
+    expect(facelets.F[2]).toBe('F')
+    expect(facelets.U[8]).toBe('L')
   })
 
-  it('swaps edge colors onto facelet slots for edge orientation', () => {
-    const cube = new Cube()
-    cube.edge_orient[1] = 1
+  it('projects a flipped edge after a legal F move', () => {
+    const cube = new Cube().move('F')
 
     const facelets = cubeToFacelets(cube)
 
-    expect(facelets.F[1]).toBe('U')
-    expect(facelets.U[7]).toBe('F')
+    expect(facelets.F[1]).toBe('F')
+    expect(facelets.U[7]).toBe('L')
   })
 
   it('projects a U move onto the top rows of the side faces', () => {

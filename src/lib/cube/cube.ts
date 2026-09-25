@@ -17,10 +17,10 @@ export class Cube {
         this.edge_orient = edge_orient.slice()
     }
 
-    corner_perm: number[]
-    corner_orient: number[]
-    edge_perm: number[]
-    edge_orient: number[]
+    private corner_perm: number[]
+    private corner_orient: number[]
+    private edge_perm: number[]
+    private edge_orient: number[]
 
     clone(): Cube {
         const newCube = new Cube()
@@ -105,5 +105,19 @@ export class Cube {
 
     toFacelets(): Facelets {
         return cubeToFacelets(this)
+    }
+
+    // public methods for reading cube data now that state is private
+    public get cornerPerm(): number[] {
+        return [...this.corner_perm]
+    }
+    public get cornerOrient(): number[] {
+        return [...this.corner_orient]
+    }
+    public get edgePerm(): number[] {
+        return [...this.edge_perm]
+    }
+    public get edgeOrient(): number[] {
+        return [...this.edge_orient]
     }
 }

@@ -69,9 +69,9 @@ export function cubeToFacelets(cube: Cube): Facelets {
         B: Array(9).fill('B')
     };
 
-    for (let i = 0; i < cube.corner_perm.length; i++) {
-        const corner = cube.corner_perm[i]
-        const orient = cube.corner_orient[i]
+    for (let i = 0; i < cube.cornerPerm.length; i++) {
+        const corner = cube.cornerPerm[i]
+        const orient = cube.cornerOrient[i]
         const colors = CORNER_COLORS[corner]
         for (let j = 0; j < 3; j++) {
             const [targetFace, targetIndex] = CORNER_FACELETS[i][(j + orient) % 3]
@@ -80,9 +80,9 @@ export function cubeToFacelets(cube: Cube): Facelets {
         }
     }
 
-    for (let i = 0; i < cube.edge_perm.length; i++) {
-        const edge = cube.edge_perm[i]
-        const orient = cube.edge_orient[i]
+    for (let i = 0; i < cube.edgePerm.length; i++) {
+        const edge = cube.edgePerm[i]
+        const orient = cube.edgeOrient[i]
         const colors = EDGE_COLORS[edge]
         for (let j = 0; j < 2; j++) {
             const [targetFace, targetIndex] = EDGE_FACELETS[i][(j + orient) % 2]
