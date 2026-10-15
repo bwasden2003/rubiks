@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { Cube } from '../lib/cube/cube.ts'
 import type { Move } from '../lib/cube/types.ts'
 import { Cube3D } from './Cube3D.tsx'
-import type { Challenge } from '../lib/challenge/types.ts'
 import { generateChallenge } from '../lib/challenge/generator.ts'
+import type { AttemptState } from '../lib/game/attempt.ts'
+import { applyMove, createAttempt, undoMove, resetAttempt, getElapsedMs } from '../lib/game/attempt.ts'
 
 const KEY_MOVES: Record<string, Move> = {
   u: 'U',
@@ -15,40 +15,47 @@ const KEY_MOVES: Record<string, Move> = {
 }
 
 export function CubeChallenge() {
-  const [moves, setMoves] = useState<Move[]>([])
-
   // get the current date to use for the seed
-  const today = new Date();
-  const seed = today.toLocaleDateString('en-US', {
+  const [now, setNow] = useState(() => new Date())
+  const seed = now.toLocaleDateString('en-US', {
     month: '2-digit',
     day: '2-digit',
     year: 'numeric'
   });
 
-  const [challenge, setChallenge] = useState<Challenge>(generateChallenge(seed, 3))
+  const [attempt, setAttempt] = useState<AttemptState>(() => createAttempt(generateChallenge(seed, 3)))
 
-  useEffect(() => {
-    setChallenge(generateChallenge(seed, 3))
-  }, [])
-
-  // this is the user's cube so it's the starting state we give them + the moves they make
-  const startingCube = new Cube().applyAlg(challenge.startMoves.concat(moves))
-
-  // this is the target cube so it's the starting moves + the reference moves
-  const targetCube = new Cube().applyAlg(challenge.startMoves.concat(challenge.referenceMoves))
-
-
+  // Effect to handle keyboard input for moves, undo, and reset
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      const move = KEY_MOVES[event.key.toLowerCase()]
+      const target = event.target
 
+      // Leave typing and editable content alone.
+      if (
+        target instanceof HTMLElement &&
+        (target.closest('input, textarea, select') || target.isContentEditable)
+      ) {
+        return
+      }
+
+      // Leave browser and operating-system shortcuts alone.
+      if (event.ctrlKey || event.altKey || event.metaKey) return
+
+      const move = KEY_MOVES[event.key.toLowerCase()]
+      
       if (move) {
-        setMoves((current) => [...current, event.shiftKey ? (`${move}'` as Move) : move])
+        event.preventDefault()
+        const selectedMove: Move = event.shiftKey ? `${move}'` as Move : move
+        setAttempt((current) => applyMove(current, selectedMove, new Date()))
         return
       }
 
       if (event.key === 'Backspace') {
-        setMoves((current) => current.slice(0, -1))
+        setAttempt((current) => undoMove(current))
+      }
+
+      if (event.key === 'Escape') {
+        setAttempt((current) => resetAttempt(current))
       }
     }
 
@@ -56,12 +63,29 @@ export function CubeChallenge() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [])
 
+  // Effect to update the current time every tenth of a second for the timer
+  useEffect(() => {
+    if (attempt.status !== 'playing') return
+
+    const interval = window.setInterval(() => {
+      setNow(new Date())
+    }, 100)
+    
+    return () => window.clearInterval(interval)
+  }, [attempt.status])
+
   return (
     <main className="game-shell">
-      <Cube3D facelets={startingCube.toFacelets()} />
-      <Cube3D facelets={targetCube.toFacelets()} />
-      <p>Moves: {moves.join(' ')}</p>
-      <p>Target Moves: {challenge.referenceMoves.join(' ')}</p>
+      <p>Timer: {Math.max(0, getElapsedMs(attempt, now))} ms</p>
+      <Cube3D facelets={attempt.currentCube.toFacelets()} />
+      <Cube3D facelets={attempt.targetCube.toFacelets()} />
+      {attempt.status === 'completed' && (
+        <p>Completed in {Math.max(0, getElapsedMs(attempt, now))} ms!</p>
+      )}
+      <p>Status: {attempt.status}</p>
+      <p>Moves: {attempt.moves.length}</p>
+      {/* possibly change to display the target number of moves, would need to store difficulty */}
+      <p>Target Moves: {attempt.challenge.referenceMoves.join(' ')}</p>
     </main>
   )
 }
