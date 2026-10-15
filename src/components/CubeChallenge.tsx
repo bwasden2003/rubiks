@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { Move } from '../lib/cube/types.ts'
+import type { FaceName, Move } from '../lib/cube/types.ts'
 import { Cube3D } from './Cube3D.tsx'
 import { generateChallenge } from '../lib/challenge/generator.ts'
 import type { AttemptState } from '../lib/game/attempt.ts'
@@ -25,6 +25,8 @@ export function CubeChallenge() {
 
   const [attempt, setAttempt] = useState<AttemptState>(() => createAttempt(generateChallenge(seed, 3)))
 
+  const [face, setFace] = useState<FaceName | null>(null)
+
   // Effect to handle keyboard input for moves, undo, and reset
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
@@ -42,7 +44,7 @@ export function CubeChallenge() {
       if (event.ctrlKey || event.altKey || event.metaKey) return
 
       const move = KEY_MOVES[event.key.toLowerCase()]
-      
+
       if (move) {
         event.preventDefault()
         const selectedMove: Move = event.shiftKey ? `${move}'` as Move : move
@@ -51,10 +53,12 @@ export function CubeChallenge() {
       }
 
       if (event.key === 'Backspace') {
+        event.preventDefault()
         setAttempt((current) => undoMove(current))
       }
 
       if (event.key === 'Escape') {
+        event.preventDefault()
         setAttempt((current) => resetAttempt(current))
       }
     }
@@ -70,14 +74,14 @@ export function CubeChallenge() {
     const interval = window.setInterval(() => {
       setNow(new Date())
     }, 100)
-    
+
     return () => window.clearInterval(interval)
   }, [attempt.status])
 
   return (
     <main className="game-shell">
       <p>Timer: {Math.max(0, getElapsedMs(attempt, now))} ms</p>
-      <Cube3D facelets={attempt.currentCube.toFacelets()} />
+      <Cube3D facelets={attempt.currentCube.toFacelets()} selectedFace={face} onSelectFace={setFace} />
       <Cube3D facelets={attempt.targetCube.toFacelets()} />
       {attempt.status === 'completed' && (
         <p>Completed in {Math.max(0, getElapsedMs(attempt, now))} ms!</p>
